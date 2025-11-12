@@ -13,6 +13,7 @@ SCRIPTS=(
   "swap_add.sh"        "3. 添加512MB Swap分区（永久生效）"
   "v2ray-install.sh"   "4. 部署V2Ray（VLESS+WS+TLS）"
   "mt-install.sh"      "5. 部署 Metatube 服务（Docker 版）"
+  "ban-root-sh.sh"     "6. 禁止 root 用 ssh 登录"
 )
 
 # ==================== 通用工具函数 ====================
