@@ -58,6 +58,8 @@ prepare_files() {
         info "目录 $NGINX_DIR 已存在，跳过创建"
     fi
 
+    cp $SUBSCRIBE_FILE $NGINX_DIR/
+
     # 切换到工作目录
     cd "$NGINX_DIR" || error "进入目录 $NGINX_DIR 失败！"
 

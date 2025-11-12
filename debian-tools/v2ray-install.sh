@@ -174,6 +174,7 @@ generate_client_config() {
     info "正在生成客户端连接配置..."
     # 生成 URI（URL编码 path）
     URI="vless://$UUID@$DOMAIN:443?encryption=none&security=tls&type=ws&host=$DOMAIN&path=%2Fvless#V2Ray-VLESS-WS-TLS"
+    echo $URI >> ./ssr_subscribe.txt
     
     echo -e "\n====================================="
     success "客户端配置信息（请复制保存）"
