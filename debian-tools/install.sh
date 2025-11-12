@@ -3,7 +3,7 @@ set -euo pipefail  # 严格模式：报错立即退出，禁止未定义变量
 
 # ==================== 配置区（完全适配你的脚本名和目录结构）====================
 # 1. 小脚本路径：当前主脚本所在目录下的 tools/ 子目录（自动识别主脚本位置）
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)/tools"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # 2. 小脚本配置（严格对应你的 tools 目录下的脚本名）
 # 格式：["脚本文件名" "功能描述"]（顺序=一键执行顺序）
