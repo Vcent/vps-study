@@ -9,12 +9,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 # 格式：["脚本文件名" "功能描述"]（顺序=一键执行顺序）
 SCRIPTS=(
   "user-add.sh"                         "1. 创建vv用户（含sudo免密、SSH同步）"
-  "ban-root-ssh.sh"                     "6. 禁止 root 用 ssh 登录 && 禁止用 password 登录!!!!!"
-  "ssh-enable-passwd-login.sh"          "7. 启用 ssh 的 passwd 登录"
-  "docker-install.sh"                   "2. 安装Docker（含自动启动、测试）"
-  "swap_add.sh"                         "3. 添加512MB Swap分区（永久生效）"
-  "v2ray-install.sh"                    "4. 部署V2Ray（VLESS+WS+TLS）"
-  "mt-install.sh"                       "5. 部署 Metatube 服务（Docker 版）"
+  "ban-root-ssh.sh"                     "2. 禁止 root 用 ssh 登录 && 禁止用 password 登录!!!!!"
+  "ssh-enable-passwd-login.sh"          "3. 启用 ssh 的 passwd 登录"
+  "docker-install.sh"                   "4. 安装Docker（含自动启动、测试）"
+  "swap_add.sh"                         "5. 添加512MB Swap分区（永久生效）"
+  "v2ray-install.sh"                    "6. 部署V2Ray（VLESS+WS+TLS）"
+  "mt-install.sh"                       "7. 部署 Metatube 服务（Docker 版）"
 )
 
 # ==================== 通用工具函数 ====================
