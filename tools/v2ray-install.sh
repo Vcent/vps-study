@@ -157,6 +157,7 @@ run_v2ray_container() {
       -v "$HOME/v2ray/config.json:/etc/v2ray/config.json" \
       -v /etc/letsencrypt:/etc/letsencrypt:ro \
       -p 443:443 \
+      --restart=always \
       v2fly/v2fly-core:v4.27.0 || error "容器启动失败！"
 
     # 检查容器状态
