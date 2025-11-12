@@ -81,7 +81,7 @@ show_menu() {
   for ((i=0; i<${#SCRIPTS[@]}; i+=2)); do
     echo "${SCRIPTS[$i+1]}"  # 显示带序号的功能描述（与你的脚本名对应）
   done
-  echo -e "\033[1;33m请输入要执行的序号（0-${#SCRIPTS[@]/2}）：\033[0m"
+  echo -e "\033[1;33m请输入要执行的序号（0-$(( ${#SCRIPTS[@]} / 2 ))）：\033[0m"
 }
 
 run_selected_script() {
