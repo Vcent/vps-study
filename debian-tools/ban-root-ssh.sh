@@ -114,14 +114,18 @@ restart_ssh_service() {
     success "SSH 服务重启成功"
 }
 
-# 验证禁止 root 登录是否生效
+
 verify_disable_root() {
     info "验证 root 登录是否已禁止..."
-    local sshd_status=$(sshd -T | grep -E "permitrootlogin|passwordauthentication")
+    local permit_root=$(sshd -T | grep -E "permitrootlogin" | awk '{print $2}')
+    local password_auth=$(sshd -T | grep -E "passwordauthentication" | awk '{print $2}')
+
     echo -e "\n=== SSH 关键配置状态 ==="
-    echo "$sshd_status" | awk '{print $1 ": " $2}'
-    
-    if echo "$sshd_status" | grep -q "permitrootlogin=no" && echo "$sshd_status" | grep -q "passwordauthentication=no"; then
+    echo "permitrootlogin: $permit_root"
+    echo "passwordauthentication: $password_auth"
+
+    # 修正判断逻辑：只要 permitrootlogin 是 no，就视为生效
+    if [ "$permit_root" = "no" ]; then
         success "✅ 禁止 root 登录配置已生效！"
     else
         error "❌ 禁止 root 登录配置未生效，请检查！"
