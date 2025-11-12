@@ -126,7 +126,7 @@ deploy_nginx_container() {
         -v "$NGINX_DIR/$NGINX_CONF:/etc/nginx/nginx.conf:ro" \
         -v "$NGINX_DIR/$SUBSCRIBE_FILE:/etc/nginx/$SUBSCRIBE_FILE:ro" \
         -p "$LISTEN_ADDR:$LISTEN_PORT:$LISTEN_PORT" \
-        --restart always \  # 开机自启
+        --restart always \
         "$NGINX_IMAGE" || error "容器启动失败！"
 
     success "Nginx 容器 $CONTAINER_NAME 启动成功"
