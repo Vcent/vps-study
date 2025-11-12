@@ -15,6 +15,7 @@ SCRIPTS=(
   "swap_add.sh"                         "5. 添加512MB Swap分区（永久生效）"
   "v2ray-install.sh"                    "6. 部署V2Ray（VLESS+WS+TLS）"
   "mt-install.sh"                       "7. 部署 Metatube 服务（Docker 版）"
+  "subscribe-url-install.sh"            "8. 部署本地 subscribe url 服务"
 )
 
 # ==================== 通用工具函数 ====================
