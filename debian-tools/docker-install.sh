@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "" > /etc/apt/sources.list.d/backports.list
 set -euo pipefail  # 严格模式：报错立即退出，禁止未定义变量，管道失败视为整体失败
 
 # ==================== 工具函数 ====================
