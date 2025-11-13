@@ -86,7 +86,7 @@ events {}
 
 http {
     server {
-        listen $LISTEN_ADDR:$LISTEN_PORT;
+        listen 0.0.0.0:$LISTEN_PORT;
         server_name localhost;
 
         location $SUBSCRIBE_PATH {
