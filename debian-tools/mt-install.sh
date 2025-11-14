@@ -78,7 +78,9 @@ run_container() {
       --name "$CONTAINER_NAME" \
       -p "$HOST_PORT:$CONTAINER_PORT" \
       -v "$CONFIG_DIR:/config" \
-      -e MT_MOVIE_PROVIDER_TOKYO_HOT_PRIORITY=1020 \
+      --cpus=1 \
+      --memory=512m \
+      --memory-swap=1g \
       --restart=always \
       "$IMAGE_NAME" \
       -dsn "$DSN_PATH" || error "容器启动失败！请查看日志：docker logs $CONTAINER_NAME"
