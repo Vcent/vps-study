@@ -1,7 +1,7 @@
 # vps-study
 hosted vps make more fun
 
-# Ip-dns-detect website
+# IP-DNS-detect website
 
 Here are some reliable websites you can use to check your IP address, GeoIP info, and DNS configuration:
 
