@@ -123,8 +123,8 @@ main() {
 
     check_root          # 检查权限
     check_docker        # 检查 Docker 环境
-    check_port "$HOST_PORT"  # 检查端口是否占用
     check_container     # 检查并删除旧容器
+    check_port "$HOST_PORT"  # 检查端口是否占用
     create_config_dir   # 创建配置目录
     run_container       # 启动容器
     verify_deployment   # 验证部署
