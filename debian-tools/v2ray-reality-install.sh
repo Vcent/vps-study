@@ -14,12 +14,18 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 echo "Generated UUID: $UUID"
 
 # 3. Generate Reality keypair using Xray-core (pulled via teddysun/xray image)
-echo "Generating Reality keypair..."
-REA_KEYS=$(docker run --rm teddysun/xray xray x25519)
-PRIVKEY=$(echo "$REA_KEYS" | grep 'Private key' | awk '{print $3}')
-PUBKEY=$(echo "$REA_KEYS" | grep 'Public key' | awk '{print $3}')
-echo "Reality Private key: $PRIVKEY"
-echo "Reality Public key (for client config): $PUBKEY"
+ while true; do
+  REA_KEYS=$(docker run --rm teddysun/xray xray x25519)
+  PRIVKEY=$(echo "$REA_KEYS" | grep 'Private key' | awk '{print $3}')
+  PUBKEY=$(echo "$REA_KEYS" | grep 'Public key' | awk '{print $3}')
+  if [[ -n "$PRIVKEY" && -n "$PUBKEY" ]]; then
+    echo "Reality Private key: $PRIVKEY"
+    echo "Reality Public key (for client config): $PUBKEY"
+    break
+  fi
+  echo "KeyGen failed, retrying..."
+  sleep 1
+done
 
 # 4. Set other parameters
 SHORTID="7b0390ce"
