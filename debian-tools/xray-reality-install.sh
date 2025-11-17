@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# vv's Xray Reality One-Click Auto Deploy Script for custom Cloudflare domain
+# vv's one-click VLESS+XTLS+Reality Xray node with IPv4 only, port 8443, full cloudflared.com camouflage
 
 set -e
 
-WORKDIR=~/xray-reality
+WORKDIR=/home/root/xray-reality
 mkdir -p "$WORKDIR"
 cd "$WORKDIR"
 
@@ -12,28 +12,26 @@ cd "$WORKDIR"
 UUID=$(cat /proc/sys/kernel/random/uuid)
 echo "Generated UUID: $UUID"
 
-# 2. Prompt for (or manually paste) pre-generated Reality keys for predictable compatibility
-echo ""
-echo "Paste your Reality PrivateKey (from: docker run --rm teddysun/xray xray x25519), or leave blank to generate with script:"
-read -p "PrivateKey: " PRIVKEY
-
-if [[ -z "$PRIVKEY" ]]; then
-  echo "Generating Reality keypair via Docker..."
-  REA_KEYS=$(docker run --rm teddysun/xray xray x25519)
-  PRIVKEY=$(echo "$REA_KEYS" | grep 'PrivateKey:' | awk '{print $2}')
-  PUBKEY=$(echo "$REA_KEYS" | grep 'Password:' | awk '{print $2}')
-else
-  echo "Paste your Reality PublicKey for client config (same output as above):"
-  read -p "PublicKey: " PUBKEY
+# 2. Generate Reality keypair (prompt if fails)
+KEYS=$(docker run --rm teddysun/xray xray x25519)
+PRIVKEY=$(echo "$KEYS" | grep -i 'PrivateKey' | awk '{print $2}')
+PUBKEY=$(echo "$KEYS" | grep -i 'Password' | awk '{print $2}')
+if [[ -z "$PRIVKEY" || -z "$PUBKEY" ]]; then
+  echo "Key generation failed, please run: docker run --rm teddysun/xray xray x25519"
+  exit 1
 fi
+echo "Reality PrivateKey: $PRIVKEY"
+echo "Reality Client PublicKey: $PUBKEY"
 
+# 3. Parameters
 SHORTID="7b0390ce"
-CF_DOMAIN="www.mario8.dpdns.org"
-SERVER_NAME="$CF_DOMAIN"
-DEST="$CF_DOMAIN:443"
-SERVER_IP=$(curl -s api.ip.sb/ip || echo "YOUR_SERVER_IP")
+CAMO_DOMAIN="cloudflared.com"
+DEST_DOMAIN="${CAMO_DOMAIN}:443"
+PORT=8443 # Listen port, IPv4 only
 
-# 3. Write Xray config.json
+SERVER_IP=$(curl -4s api.ip.sb/ip || echo "YOUR_IPV4")
+
+# 4. Generate config.json for Xray Reality
 cat > config.json <<EOF
 {
   "log": {
@@ -43,7 +41,8 @@ cat > config.json <<EOF
   },
   "inbounds": [
     {
-      "port": 443,
+      "port": $PORT,
+      "listen": "0.0.0.0",
       "protocol": "vless",
       "settings": {
         "clients": [
@@ -59,10 +58,10 @@ cat > config.json <<EOF
         "security": "reality",
         "realitySettings": {
           "show": false,
-          "dest": "$DEST",
+          "dest": "$DEST_DOMAIN",
           "xver": 0,
           "serverNames": [
-            "$SERVER_NAME"
+            "$CAMO_DOMAIN"
           ],
           "privateKey": "$PRIVKEY",
           "shortIds": [
@@ -80,34 +79,35 @@ cat > config.json <<EOF
 }
 EOF
 
-echo "Xray config.json generated."
+echo "Xray config.json generated (listening on IPv4, port $PORT for VLESS+XTLS+Reality)."
 
-# 4. Pull and run Docker container
-echo "Pulling and starting teddysun/xray container..."
+# 5. Run Docker container
 docker pull teddysun/xray
 docker stop xray-reality 2>/dev/null || true
 docker rm xray-reality 2>/dev/null || true
 docker run -d --name xray-reality \
-    -v "$WORKDIR/config.json:/etc/xray/config.json:ro" \
-    -p 443:443 \
-    teddysun/xray
+  -v "$WORKDIR/config.json:/etc/xray/config.json:ro" \
+  -p $PORT:$PORT \
+  teddysun/xray
 
-# 5. Generate client JSON config and subscribe URL
+echo "Xray VLESS+XTLS+Reality (IPv4 only) is up on $SERVER_IP:$PORT"
+
+# 6. Generate client JSON config and subscribe URL
 cat > client_config.json <<EOF
 {
   "v": "2",
-  "ps": "$CF_DOMAIN-reality",
+  "ps": "cloudflared.com-reality",
   "add": "$SERVER_IP",
-  "port": "443",
+  "port": "$PORT",
   "id": "$UUID",
   "aid": "0",
   "scy": "",
   "net": "tcp",
   "type": "",
-  "host": "$CF_DOMAIN",
+  "host": "$CAMO_DOMAIN",
   "path": "",
   "tls": "",
-  "sni": "$CF_DOMAIN",
+  "sni": "$CAMO_DOMAIN",
   "alpn": "",
   "fp": "chrome",
   "allowInsecure": false,
@@ -119,15 +119,15 @@ cat > client_config.json <<EOF
 }
 EOF
 
-SUB_URL="vless://$UUID@$SERVER_IP:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$CF_DOMAIN&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=$CF_DOMAIN#$CF_DOMAIN-reality"
+SUB_URL="vless://$UUID@$SERVER_IP:$PORT?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$CAMO_DOMAIN&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=$CAMO_DOMAIN#cloudflared.com-reality"
 
 echo ""
-echo "---------------------------"
+echo "-----------------------------"
 echo "Deployment finished!"
 echo ""
-echo "Cloudflare SNI/ServerName/dest: $CF_DOMAIN"
+echo "Camouflage domain (SNI/dest/serverName): $CAMO_DOMAIN"
 echo "UUID: $UUID"
-echo "Reality Public Key for client: $PUBKEY"
+echo "Reality Client PublicKey: $PUBKEY"
 echo "ShortID: $SHORTID"
 echo ""
 echo "---- Subscribe URL ----"
@@ -136,8 +136,9 @@ echo ""
 echo "---- Client JSON ----"
 cat client_config.json
 echo ""
-echo "If you have a firewall, allow incoming TCP 443."
-echo "Check logs: docker logs xray-reality"
-echo "To stop:   docker stop xray-reality"
-echo "To remove: docker rm xray-reality"
-echo "---------------------------"
+echo "Open port $PORT (TCP) on your firewall if needed."
+echo "To check logs: docker logs xray-reality"
+echo "To stop:       docker stop xray-reality"
+echo "To remove:     docker rm xray-reality"
+echo "-----------------------------"
+
