@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# vv's one-click VLESS+XTLS+Reality Xray node with IPv4 only, port 8443, full cloudflared.com camouflage
+# vv's one-click VLESS+XTLS+Reality Xray node with IPv4 only, port 8443, full bing.com camouflage
 
 set -e
 
@@ -96,7 +96,7 @@ echo "Xray VLESS+XTLS+Reality (IPv4 only) is up on $SERVER_IP:$PORT"
 cat > client_config.json <<EOF
 {
   "v": "2",
-  "ps": "cloudflared.com-reality",
+  "ps": "$CAMO_DOMAIN-reality",
   "add": "$SERVER_IP",
   "port": "$PORT",
   "id": "$UUID",
@@ -119,7 +119,7 @@ cat > client_config.json <<EOF
 }
 EOF
 
-SUB_URL="vless://$UUID@$SERVER_IP:$PORT?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$CAMO_DOMAIN&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=$CAMO_DOMAIN#cloudflared.com-reality"
+SUB_URL="vless://$UUID@$SERVER_IP:$PORT?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$CAMO_DOMAIN&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=$CAMO_DOMAIN#$CAMO_DOMAIN-reality"
 
 echo ""
 echo "-----------------------------"
