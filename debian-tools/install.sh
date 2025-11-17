@@ -16,7 +16,7 @@ SCRIPTS=(
   "v2ray-install.sh"                    "6. 部署V2Ray（VLESS+WS+TLS）"
   "mt-install.sh"                       "7. 部署 mt 服务（Docker 版）"
   "subscribe-url-install.sh"            "8. 部署本地 subscribe url 服务"
-  "v2ray-reality-install.sh"            "9. 部署本地 subscribe url 服务"
+  "v2ray-reality-install.sh"            "9. 部署本地 v2ray with vless + xtls + reality 服务"
 )
 
 # ==================== 通用工具函数 ====================
