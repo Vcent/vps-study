@@ -3,6 +3,7 @@ set -euo pipefail  # 严格模式：报错立即退出，禁止未定义变量
 
 # ==================== 核心配置（可按需修改）====================
 CONTAINER_NAME="metatube"       # 容器名称
+LISTEN_IP="127.0.0.1"
 HOST_PORT="12345"               # 宿主机端口（对外暴露）
 CONTAINER_PORT="8080"           # 容器内部端口
 CONFIG_DIR="/opt/src/metatube"  # 配置文件/数据库挂载目录
@@ -76,7 +77,7 @@ run_container() {
     # 执行 Docker 运行命令
     docker run -d \
       --name "$CONTAINER_NAME" \
-      -p "$HOST_PORT:$CONTAINER_PORT" \
+      -p "$LISTEN_IP:$HOST_PORT:$CONTAINER_PORT" \
       -v "$CONFIG_DIR:/config" \
       --cpus=1 \
       --memory=512m \
