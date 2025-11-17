@@ -35,7 +35,7 @@ SERVER_IP=$(curl -4s api.ip.sb/ip || echo "YOUR_IPV4")
 cat > config.json <<EOF
 {
   "log": {
-    "loglevel": "warning",
+    "loglevel": "debug",
     "access": "/dev/stdout",
     "error": "/dev/stderr"
   },
