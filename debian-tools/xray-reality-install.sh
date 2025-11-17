@@ -25,7 +25,7 @@ echo "Reality Client PublicKey: $PUBKEY"
 
 # 3. Parameters
 SHORTID="7b0390ce"
-CAMO_DOMAIN="cloudflared.com"
+CAMO_DOMAIN="bing.com"
 DEST_DOMAIN="${CAMO_DOMAIN}:443"
 PORT=8443 # Listen port, IPv4 only
 
