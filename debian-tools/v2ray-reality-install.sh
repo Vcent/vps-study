@@ -1,31 +1,43 @@
 #!/bin/bash
 
-# V2Ray+XTLS+Reality Docker auto-deploy script
+# vv's Xray (VLESS+XTLS+Reality) One-click Docker Deploy with Client Config & Subscribe URL
+
 set -e
 
-# Step 1: Prepare directory
-WORKDIR=/home/root/v2ray-reality
+# 1. Prepare working directory
+WORKDIR=/home/root/xray-reality
 mkdir -p "$WORKDIR"
 cd "$WORKDIR"
 
-# Step 2: Generate UUID
+# 2. Generate UUID
 UUID=$(cat /proc/sys/kernel/random/uuid)
 echo "Generated UUID: $UUID"
 
-# Step 3: Generate Reality keypair
-echo "Generating Reality private/public key via Docker..."
-REA_KEYS=$(docker run --rm v2fly/v2fly-core:v4.27.0 xray x25519)
+# 3. Generate Reality keypair using Xray-core (pulled via teddysun/xray image)
+echo "Generating Reality keypair..."
+REA_KEYS=$(docker run --rm teddysun/xray xray x25519)
 PRIVKEY=$(echo "$REA_KEYS" | grep 'Private key' | awk '{print $3}')
 PUBKEY=$(echo "$REA_KEYS" | grep 'Public key' | awk '{print $3}')
 echo "Reality Private key: $PRIVKEY"
-echo "Reality Public key (give this to your client): $PUBKEY"
+echo "Reality Public key (for client config): $PUBKEY"
 
-# Step 4: Use fixed shortId, can randomize if you prefer
+# 4. Set other parameters
 SHORTID="7b0390ce"
+DEST_HOST="cloudflare.com"
+SERVER_NAME="$DEST_HOST"
 
-# Step 5: Create config.json
+# 5. Detect public IP automatically (change manually if needed)
+#SERVER_IP=$(curl -s api.ip.sb/ip || echo "YOUR_SERVER_IP")
+SERVER_IP="www.mario8.dpdns.org"
+
+# 6. Write Xray config.json
 cat > config.json <<EOF
 {
+  "log": {
+    "loglevel": "trace",
+    "access": "/dev/stdout",
+    "error": "/dev/stderr"
+  },
   "inbounds": [
     {
       "port": 443,
@@ -44,10 +56,10 @@ cat > config.json <<EOF
         "security": "reality",
         "realitySettings": {
           "show": false,
-          "dest": "cloudflare.com:443",
+          "dest": "$DEST_HOST:443",
           "xver": 0,
           "serverNames": [
-            "cloudflare.com"
+            "$SERVER_NAME"
           ],
           "privateKey": "$PRIVKEY",
           "shortIds": [
@@ -65,39 +77,25 @@ cat > config.json <<EOF
 }
 EOF
 
-echo "Config file generated at $WORKDIR/config.json."
+echo "Xray config.json generated."
 
-# Step 6: Pull and run the Docker container
-echo "Pulling Docker image..."
-docker pull v2fly/v2fly-core:v4.27.0
+# 7. Start Xray-core with teddysun/xray Docker image
+echo "Pulling and running teddysun/xray Docker image..."
+docker pull teddysun/xray
+docker stop xray-reality 2>/dev/null || true
+docker rm xray-reality 2>/dev/null || true
+docker run -d --name xray-reality \
+  -v "$WORKDIR/config.json:/etc/xray/config.json:ro" \
+  -p 443:443 \
+  teddysun/xray
 
-echo "Launching V2Ray Reality container (listen on port 443)..."
-docker run -d --name v2ray-reality -p 443:443 -v "$WORKDIR/config.json:/etc/v2ray/config.json:ro" v2fly/v2fly-core:v4.27.0
+echo "Xray Reality node running in Docker!"
 
-echo ""
-echo "--------- Deployment Complete ---------"
-echo "UUID: $UUID"
-echo "Reality Public key: $PUBKEY"
-echo "ShortID: $SHORTID"
-echo "SNI/ServerName: cloudflare.com"
-echo ""
-echo "Client config: use your VPS IP, port 443, UUID above, flow xtls-rprx-vision, Security=reality, PublicKey above, ShortID $SHORTID, SNI cloudflare.com"
-echo "Check logs: docker logs v2ray-reality"
-echo "To stop:    docker stop v2ray-reality"
-echo "To remove:  docker rm v2ray-reality"
-echo ""
-echo "If you need to open firewall port 443 (for nftables):"
-echo "sudo nft add rule inet filter input tcp dport 443 accept; sudo nft -f /etc/nftables.conf"
-
-### Add to Your Script: Generate Client Config and Subscription UR
-# Set your server IP or domain here
-SERVER_IP=www.mario8.dpdns.org # Or set manually: SERVER_IP=your.vps.ip.or.domain
-
-# Create Client config JSON (for export/import, SagerNet, sing-box, etc.)
+# 8. Create (print) client JSON config for import (v2rayN, SagerNet, sing-box, etc.)
 cat > client_config.json <<EOF
 {
   "v": "2",
-  "ps": "vless-reality-demo",
+  "ps": "vless-reality-xray",
   "add": "$SERVER_IP",
   "port": "443",
   "id": "$UUID",
@@ -105,12 +103,12 @@ cat > client_config.json <<EOF
   "scy": "",
   "net": "tcp",
   "type": "",
-  "host": "cloudflare.com",
+  "host": "$DEST_HOST",
   "path": "",
   "tls": "",
-  "sni": "cloudflare.com",
+  "sni": "$SERVER_NAME",
   "alpn": "",
-  "fp": "",
+  "fp": "chrome",
   "allowInsecure": false,
   "flow": "xtls-rprx-vision",
   "protocol": "vless",
@@ -120,15 +118,25 @@ cat > client_config.json <<EOF
 }
 EOF
 
-# Create VLESS Reality subscribe URL (for v2rayN, Clash Meta, etc.)
-SUB_URL="vless://$UUID@$SERVER_IP:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=cloudflare.com&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=cloudflare.com#vless-reality-demo"
+# 9. Make subscription URL in standard format
+SUB_URL="vless://$UUID@$SERVER_IP:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$SERVER_NAME&fp=chrome&pbk=$PUBKEY&sid=$SHORTID&type=tcp&host=$DEST_HOST#vless-reality-xray"
 
 echo ""
-echo "--------- Client Configs ---------"
-echo "Client config (client_config.json):"
+echo "--------------- Deployment Complete ---------------"
+echo "Server: $SERVER_IP"
+echo "UUID: $UUID"
+echo "Reality Public Key: $PUBKEY"
+echo "ShortID: $SHORTID"
+echo ""
+echo ">>> Client subscribe URL format (for v2rayN, Clash Meta, etc):"
+echo "$SUB_URL"
+echo ""
+echo ">>> Client config (client_config.json):"
 cat client_config.json
 echo ""
-echo "Subscribe URL:"
-echo $SUB_URL
+echo "Use these values to connect from any Reality-supporting VLESS/Xray client."
+echo "If you have a custom firewall (nftables/iptables), ensure TCP 443 is open: sudo nft add rule inet filter input tcp dport 443 accept"
+echo "Check logs: docker logs xray-reality"
+echo "To stop:   docker stop xray-reality"
+echo "To remove: docker rm xray-reality"
 echo ""
-
