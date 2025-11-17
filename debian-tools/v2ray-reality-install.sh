@@ -4,7 +4,7 @@
 set -e
 
 # Step 1: Prepare directory
-WORKDIR=/home/vv/v2ray-reality
+WORKDIR=/home/root/v2ray-reality
 mkdir -p "$WORKDIR"
 cd "$WORKDIR"
 
