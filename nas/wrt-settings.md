@@ -1,0 +1,74 @@
+
+
+# OpenWrt settings
+
+### 环境：
+
+192.168.1.211 是软路由位置，和其他设备都位于局域网下，原理其实挺简单的：以手机为例，数据链路如下
+192.168.1.12→192.168.1.211→192.168.1.1→运营商 IP；核心就是设置各自的网关。
+
+![image-20251127160147162](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127160147162.png)
+
+- 首次登录应该不用密码，用户名是 root，进入管理端后，导航到 系统-管理权-主机密码修改。
+
+![image-20251127160602873](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127160602873.png)
+
+- 虚拟机安装好镜像后，默认 ip 是 192.168.1.1，和上一级路由冲突，因此需要用 ssh 登录去修改 lan 口的 ip。配置文件位于`/etc/config/network`，自行修改，需要重启生效，执行 `reboot` 。
+
+![image-20251127160425479](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127160425479.png)
+
+### 网络接口设置
+
+- 导航到 网络-接口
+
+![image-20251127154002996](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154002996.png)
+
+- 导航到 网络-接口-一般配置-基本设置
+
+![image-20251127154508858](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154508858.png)
+
+- 导航到 网络-接口-一般配置-高级设置
+
+![image-20251127154217793](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154217793.png)
+
+- 导航到 网络-接口-一般配置-物理设置
+
+![image-20251127154227860](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154227860.png)
+
+- 导航到 网络-接口-一般配置-防火墙设置
+
+![image-20251127154238095](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154238095.png)
+
+- 导航到 网络-接口-DHCP 服务器-基本设置
+
+![image-20251127154440922](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154440922.png)
+
+- 导航到 网络-接口-DHCP 服务器-IPv6 设置
+
+![image-20251127154139058](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154139058.png)
+
+### 防火墙设置
+
+- 导航到 网络-防火墙
+
+![image-20251127154604918](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154604918.png)
+
+- 导航到网络-防火墙-基本设置
+
+![image-20251127154626352](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154626352.png)
+
+- 导航到网络-防火墙-区域
+
+![image-20251127154731309](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154731309.png)
+
+### 网络诊断
+
+- 导航到网络-网络诊断，可以测试 PING、TRACEROUTE、NSLOOKUP
+
+![image-20251127154829533](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154829533.png)
+
+### 配置代理
+
+导航到 服务-ShadowSocksR Plus+，找一个用的顺手的 client 就行，ios 用 ssr 小火箭习惯了，而且它的配置比较简单，同时支持vless+ws+tls、vless+xtls+reality、tuic，非常适合作为client。导入你订阅节点的信息就行了。
+
+![image-20251127154936046](/Users/bytedance/Library/Application Support/typora-user-images/image-20251127154936046.png)
